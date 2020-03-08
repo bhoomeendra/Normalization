@@ -1,8 +1,12 @@
+from constants import LEFT
+
+
 class Table:
-    def __init__(self, attr, fds,normalForm):
+    def __init__(self, attr, fds, normalForm):
         self.attr = attr
         self.fds = fds
         self.normalForm = normalForm;
+
     def show(self):
         print(" Table Attributes : ", self.attr)
         print("Table Funtional Dependencies ", self.fds)
@@ -21,14 +25,14 @@ class Table:
         right = self.fds[1][index]
         return [left, right]
 
-    def setAttr(self,attr):
+    def setAttr(self, attr):
         self.attr = attr
 
     def setFds(self, fds):
         self.fds = fds
 
-    def setNormalForm(self,normalForm):
-        self.normalForm =normalForm
+    def setNormalForm(self, normalForm):
+        self.normalForm = normalForm
 
     def getNoOfFds(self):
-        return len(self.fds[0])
+        return len(self.fds[LEFT])
