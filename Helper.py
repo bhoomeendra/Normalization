@@ -12,7 +12,11 @@ def Closer(table , attrSet):
                 if(fdLeft.issubset(closer)):
                     closer.union(fdRight)
 
+def MinimalCover(table):
+    pass;
 
+def CandidateKey(table):
+    pass;
 
 
 
