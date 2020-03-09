@@ -15,6 +15,7 @@ def Closer(table , attrSet):
 def MinimalCover(table):
     # STEP 1
     newFds = [[],[]]
+    #Decompstion in Single RHS attribute
     for index in range(table.getNoOfFds()):
         fd = table.getFdById(index)
         if(len(fd[RIGHT]) > 1):
@@ -22,18 +23,24 @@ def MinimalCover(table):
                 newFds[LEFT].append(fd[LEFT])
                 newFds[RIGHT].append(attr)
     #STEP 2
+    #Removing Useless Fds
 
     #STEP 3
-
-
+    #Left Side reduction
+    for index in range(table.getNoOfFds()):
+        fd = table.getFdById(index)
+        closerWithAttr = Closer(table,fd[LEFT])
+        newFdLeft = fd[LEFT]
+        for attr in fd[LEFT]:
+            if Closer(table,newFdLeft.difference(attr)) == closerWithAttr :
+                newFdLeft = newFdLeft.difference(attr)
+    #STEP 4
+    #Remove Redundent FD
 
 
 def CandidateKey(table):
 
     essential = table.getAttr()
-    mayBeEssential = set()
-    notEssential = set()#will not be used
-
     attrInLeft = set()
     attrInRight = set()
     for index in range(table.getNoOfFds()):
@@ -43,7 +50,6 @@ def CandidateKey(table):
 
     mayBeEssential = attrInLeft.intersection(attrInRight)
     essential = essential.difference(attrInRight)
-    notEssential= attrInRight.difference(attrInLeft)
 
     closerofEssential = Closer(table,essential)
 
