@@ -1,4 +1,4 @@
-from constants import LEFT
+from constants import LEFT, RIGHT
 
 
 class Table:
@@ -36,3 +36,9 @@ class Table:
 
     def getNoOfFds(self):
         return len(self.fds[LEFT])
+
+    def removeFdById(self,index):
+        self.fds[LEFT].pop(index)
+        self.fds[RIGHT].pop(index)
+    def getNormalForm(self):
+        return self.normalForm;

@@ -1,3 +1,6 @@
+from copy import copy
+
+from Table import Table
 from constants import RIGHT, LEFT
 from itertools import combinations
 
@@ -19,13 +22,25 @@ def MinimalCover(table):
     newFds = [[],[]]
     for index in range(table.getNoOfFds()):
         fd = table.getFdById(index)
-        if(len(fd[RIGHT]) > 1):
-            for attr in fd[RIGHT]:
-                newFds[LEFT].append(fd[LEFT])
-                newFds[RIGHT].append(attr)
+        for attr in fd[RIGHT]:
+            newFds[LEFT].append(fd[LEFT])
+            newFds[RIGHT].append(attr)
     #STEP 2
+    table.setFds(newFds)
+    index = 0
+    while index < table.getNoOfFds():
+        fd = table.getFdById(index)
+        tempTable = Table(table.getAttr(), table.getFdsSet(), table.getNormalForm())
+        tempTable.removeFdById(index)
+        closerWithFd =  Closer(table,fd[LEFT])
+        closerWithoutFd = Closer(tempTable,fd[LEFT])
 
+        if(closerWithFd.equals(closerWithoutFd)):
+            table = tempTable
+            continue
+        index+=1
 
+    #STEP 3
 
 
 
