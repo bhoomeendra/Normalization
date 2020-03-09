@@ -1,3 +1,6 @@
+from copy import copy
+
+from Table import Table
 from constants import RIGHT, LEFT
 from itertools import combinations
 
@@ -18,13 +21,26 @@ def MinimalCover(table):
     #Decompstion in Single RHS attribute
     for index in range(table.getNoOfFds()):
         fd = table.getFdById(index)
-        if(len(fd[RIGHT]) > 1):
-            for attr in fd[RIGHT]:
-                newFds[LEFT].append(fd[LEFT])
-                newFds[RIGHT].append(attr)
+        for attr in fd[RIGHT]:
+            newFds[LEFT].append(fd[LEFT])
+            newFds[RIGHT].append(attr)
+    
     #STEP 2
     #Removing Useless Fds
+    table.setFds(newFds)
+    index = 0
+    while index < table.getNoOfFds():
+        fd = table.getFdById(index)
+        tempTable = Table(table.getAttr(), table.getFdsSet(), table.getNormalForm())
+        tempTable.removeFdById(index)
+        closerWithFd =  Closer(table,fd[LEFT])
+        closerWithoutFd = Closer(tempTable,fd[LEFT])
 
+        if(closerWithFd.equals(closerWithoutFd)):
+            table = tempTable
+            continue
+        index+=1
+    
     #STEP 3
     #Left Side reduction
     for index in range(table.getNoOfFds()):
@@ -35,8 +51,10 @@ def MinimalCover(table):
             if Closer(table,newFdLeft.difference(attr)) == closerWithAttr :
                 newFdLeft = newFdLeft.difference(attr)
     #STEP 4
-    #Remove Redundent FD
+    #Remove Redundent FDs
+    
 
+    
 
 def CandidateKey(table):
 
