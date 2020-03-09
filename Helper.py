@@ -10,22 +10,23 @@ def Closer(table , attrSet):
     for i in range(len(closer)):
             for index in range(table.getNoOfFds()):
                 fd = table.getFdById(index)
-                fdLeft = fd[LEFT]
-                fdRight = fd[RIGHT]
-                if fdLeft.issubset(closer):
-                   closer = closer.union(fdRight)
+                if fd[LEFT].issubset(closer):
+                   closer.add(fd[RIGHT])
 
     return closer
 
 def MinimalCover(table):
     # STEP 1
     newFds = [[],[]]
+    #Decompstion in Single RHS attribute
     for index in range(table.getNoOfFds()):
         fd = table.getFdById(index)
         for attr in fd[RIGHT]:
             newFds[LEFT].append(fd[LEFT])
             newFds[RIGHT].append(attr)
+    
     #STEP 2
+    #Removing Useless Fds
     table.setFds(newFds)
     index = 0
     while index < table.getNoOfFds():
@@ -39,13 +40,52 @@ def MinimalCover(table):
             table = tempTable
             continue
         index+=1
-
+    
     #STEP 3
+    #Left Side reduction
+    for index in range(table.getNoOfFds()):
+        fd = table.getFdById(index)
+        closerWithAttr = Closer(table,fd[LEFT])
+        newFdLeft = fd[LEFT]
+        for attr in fd[LEFT]:
+            if Closer(table,newFdLeft.difference(attr)) == closerWithAttr :
+                newFdLeft = newFdLeft.difference(attr)
+    #STEP 4
+    #Remove Redundent FDs
+    
 
-
+    
 
 def CandidateKey(table):
-    pass;
+
+    essential = table.getAttr()
+    attrInLeft = set()
+    attrInRight = set()
+    for index in range(table.getNoOfFds()):
+        fd = table.getFdById(index)
+        attrInLeft.add(fd[LEFT])
+        attrInRight.add(fd[RIGHT])
+
+    mayBeEssential = attrInLeft.intersection(attrInRight)
+    essential = essential.difference(attrInRight)
+
+    closerofEssential = Closer(table,essential)
+
+    if closerofEssential == table.getAttr():
+        return essential
+    else:
+        pcOfMayBeEssential = possibleCombination(mayBeEssential)
+        setOfCandidateKeys = list()
+
+        for possiblity in pcOfMayBeEssential:
+
+            if Closer(table,essential.union(possiblity)) == table.getAttr() :
+                if isSupersetOfSetin(setOfCandidateKeys,essential.union(possiblity)) == False :
+                    setOfCandidateKeys.append(essential.union(possiblity))
+
+        return setOfCandidateKeys
+
+
 
 def possibleCombination(attrs):
     pC = []
@@ -53,6 +93,12 @@ def possibleCombination(attrs):
         pC.append(list(combinations(attrs,length)))
     return pC;
 
+def isSupersetOfSetin(setOfCandidateKeys , attrSet ):
+
+    for cd in setOfCandidateKeys:
+        if cd.issubset(attrSet):
+            return True;
+    return False
 
 
 
