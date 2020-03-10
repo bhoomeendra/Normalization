@@ -42,3 +42,8 @@ class Table:
         self.fds[RIGHT].pop(index)
     def getNormalForm(self):
         return self.normalForm;
+
+    def deleteFdById(self,index):
+
+        del self.fds[0][index]
+        del self.fds[1][index]

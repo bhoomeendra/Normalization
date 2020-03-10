@@ -52,7 +52,16 @@ def MinimalCover(table):
                 newFdLeft = newFdLeft.difference(attr)
     #STEP 4
     #Remove Redundent FDs
-    
+    for index in range(table.getNoOfFds()):
+        fd = table.getFdById(index)
+        index_2 = index+1
+        while(index_2<table.getNoOfFds()):
+            fdLoop = table.getFdById(index_2)
+            if FdEqualityChecker(fd,fdLoop):
+                table.deleteFdById(index)
+                break
+            index_2 += 1
+
 
     
 
@@ -93,12 +102,16 @@ def possibleCombination(attrs):
         pC.append(list(combinations(attrs,length)))
     return pC;
 
-def isSupersetOfSetin(setOfCandidateKeys , attrSet ):
+def isSupersetOfSetin(setOfCandidateKeys , attrSet):
 
     for cd in setOfCandidateKeys:
         if cd.issubset(attrSet):
             return True;
     return False
 
+def FdEqualityChecker(fd1 ,fd2):
 
+    if(fd1[LEFT] == fd2[LEFT] and  fd2[RIGHT] == fd2[RIGHT]):
+        return True
+    return False
 
