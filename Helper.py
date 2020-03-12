@@ -1,7 +1,7 @@
 from copy import copy
-
+import json
 from Table import Table
-from constants import RIGHT, LEFT
+from constants import RIGHT, LEFT, FD, ATTRIBUTE
 from itertools import combinations
 
 def Closer(table , attrSet):
@@ -115,3 +115,16 @@ def FdEqualityChecker(fd1 ,fd2):
         return True
     return False
 
+def DataPaser(data):
+    jsonData = json.loads(data)
+    attr = jsonData[ATTRIBUTE]
+    fds = jsonData[FD]
+    left = list()
+    right = list()
+
+    for att in fds[LEFT]:
+        left.append(set(att))
+    for att in fds[RIGHT]:
+        right.append(set(att))
+    print(left,right)
+    return Table(attr,[left,right],"1NF")

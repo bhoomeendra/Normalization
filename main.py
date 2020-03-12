@@ -1,19 +1,23 @@
+import json
+
 from Table import Table
-from Helper import possibleCombination, Closer, MinimalCover
+from Helper import possibleCombination, Closer, MinimalCover, DataPaser
 from flask import Flask,request,jsonify
+from flask_cors import CORS
+import  jsonpickle
+from constants import FD, ATTRIBUTE
+
 app = Flask(__name__)
+cors = CORS(app)
 
 @app.route('/Decompose',methods=['POST'])
 def DecomposeTable():
-    attr = request.json['attribute']
-    fds  = request.json['fd']
-    print("Attributes: ",attr)
-    print("Functional Dependency: ",fds)
-    #Pasre this into fd list of list of set's
-    return jsonify(fds)
+    table = DataPaser(request.data.decode("utf-8"))
+
+    return jsonpickle.encode(table) #Make a Json Parser Function that will loop over all the table
 
 if(__name__ == "__main__"):
-    app.run(debug=True)
+    app.run(debug=False)
 
 
 

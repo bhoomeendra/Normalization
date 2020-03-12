@@ -1,3 +1,5 @@
+import json
+
 from constants import LEFT, RIGHT
 
 
@@ -47,3 +49,6 @@ class Table:
 
         del self.fds[0][index]
         del self.fds[1][index]
+
+    def toJson(self):
+        return json.dumps(self, default=lambda o: o.__dict__)
