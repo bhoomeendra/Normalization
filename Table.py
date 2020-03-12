@@ -46,9 +46,5 @@ class Table:
         return self.normalForm;
 
     def deleteFdById(self,index):
-
         del self.fds[0][index]
         del self.fds[1][index]
-
-    def toJson(self):
-        return json.dumps(self, default=lambda o: o.__dict__)

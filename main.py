@@ -17,22 +17,7 @@ def DecomposeTable():
     return jsonpickle.encode(table) #Make a Json Parser Function that will loop over all the table
 
 if(__name__ == "__main__"):
-    app.run(debug=False)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    app.run(debug=True)
 
 
 
