@@ -23,8 +23,8 @@ class Table:
         return self.normalForm;
 
     def getFdById(self, index):
-        left = self.fds[0][index]
-        right = self.fds[1][index]
+        left = self.fds[LEFT][index]
+        right = self.fds[RIGHT][index]
         return [left, right]
 
     def setAttr(self, attr):
@@ -48,3 +48,7 @@ class Table:
     def deleteFdById(self,index):
         del self.fds[0][index]
         del self.fds[1][index]
+    def displayFDs(self):
+        print("Functional Dependency: ")
+        for i in range(self.getNoOfFds()):
+            print(self.fds[LEFT][i],"\t-------------->\t",self.fds[RIGHT][i])

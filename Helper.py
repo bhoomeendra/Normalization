@@ -1,4 +1,4 @@
-from copy import copy
+from copy import  deepcopy
 import json
 from Table import Table
 from constants import RIGHT, LEFT, FD, ATTRIBUTE
@@ -6,13 +6,13 @@ from itertools import combinations
 
 def Closer(table , attrSet):
     closer = set().union(attrSet)
-
-    for i in range(len(closer)):
+    i=0
+    while i<len(closer):
             for index in range(table.getNoOfFds()):
                 fd = table.getFdById(index)
                 if fd[LEFT].issubset(closer):
-                   closer.add(fd[RIGHT])
-
+                   closer = closer.union(fd[RIGHT])
+            i+=1
     return closer
 
 def MinimalCover(table):
@@ -23,36 +23,51 @@ def MinimalCover(table):
         fd = table.getFdById(index)
         for attr in fd[RIGHT]:
             newFds[LEFT].append(fd[LEFT])
-            newFds[RIGHT].append(attr)
-    
+            newFds[RIGHT].append(set(attr))
+
     #STEP 2
     #Removing Useless Fds
     table.setFds(newFds)
+    table.displayFDs()
+    print("STEP 1" ,newFds)
     index = 0
     while index < table.getNoOfFds():
         fd = table.getFdById(index)
-        tempTable = Table(table.getAttr(), table.getFdsSet(), table.getNormalForm())
+        #print(fd)
+        tempTable = deepcopy(table)
         tempTable.removeFdById(index)
         closerWithFd =  Closer(table,fd[LEFT])
+        #print("Closer With Fd",closerWithFd)
         closerWithoutFd = Closer(tempTable,fd[LEFT])
-
-        if(closerWithFd.equals(closerWithoutFd)):
-            table = tempTable
+        #print("Closer Without Fd", closerWithoutFd)
+        if(closerWithFd == closerWithoutFd):
+         #   print("New FD SET :",tempTable.getFdsSet())
+            table.setFds(tempTable.getFdsSet())
             continue
         index+=1
-    
+    newFds = table.getFdsSet()
+    table.displayFDs()
+    print("STEP 2: ", newFds)
     #STEP 3
     #Left Side reduction
-    for index in range(table.getNoOfFds()):
+    index = 0
+    while(index<table.getNoOfFds()):
         fd = table.getFdById(index)
         closerWithAttr = Closer(table,fd[LEFT])
         newFdLeft = fd[LEFT]
         for attr in fd[LEFT]:
             if Closer(table,newFdLeft.difference(attr)) == closerWithAttr :
                 newFdLeft = newFdLeft.difference(attr)
+                newFds[LEFT][index] = newFdLeft
+                table.setFds(newFds)
+                print("Index",index ,"\nPrevious Left Fd:\t",fd[LEFT],"\n New FD Left:\t ",newFdLeft)
+        index+=1
+    table.displayFDs()
+    print("STEP 3" , newFds)
+    index = 0
     #STEP 4
     #Remove Redundent FDs
-    for index in range(table.getNoOfFds()):
+    while index <table.getNoOfFds():
         fd = table.getFdById(index)
         index_2 = index+1
         while(index_2<table.getNoOfFds()):
@@ -61,19 +76,22 @@ def MinimalCover(table):
                 table.deleteFdById(index)
                 break
             index_2 += 1
-
+        index+=1
+    #We can Recombine the FD's so optimize the algo
+    table.displayFDs()
+    print("STEP 4" , newFds)
 
     
 
 def CandidateKey(table):
 
-    essential = table.getAttr()
+    essential = set(deepcopy(table.getAttr()))
     attrInLeft = set()
     attrInRight = set()
     for index in range(table.getNoOfFds()):
         fd = table.getFdById(index)
-        attrInLeft.add(fd[LEFT])
-        attrInRight.add(fd[RIGHT])
+        attrInLeft=attrInLeft.union(fd[LEFT])
+        attrInRight=attrInRight.union(fd[RIGHT])
 
     mayBeEssential = attrInLeft.intersection(attrInRight)
     essential = essential.difference(attrInRight)
@@ -86,11 +104,12 @@ def CandidateKey(table):
         pcOfMayBeEssential = possibleCombination(mayBeEssential)
         setOfCandidateKeys = list()
 
-        for possiblity in pcOfMayBeEssential:
+        for possiblityOfSameSize in pcOfMayBeEssential:
 
-            if Closer(table,essential.union(possiblity)) == table.getAttr() :
-                if isSupersetOfSetin(setOfCandidateKeys,essential.union(possiblity)) == False :
-                    setOfCandidateKeys.append(essential.union(possiblity))
+            for singlePossiblity in possiblityOfSameSize:
+                if Closer(table,essential.union(set(singlePossiblity))) == table.getAttr() :
+                    if isSupersetOfSetin(setOfCandidateKeys,essential.union(set(singlePossiblity))) == False :
+                        setOfCandidateKeys.append(essential.union(set(singlePossiblity)))
 
         return setOfCandidateKeys
 
@@ -104,6 +123,8 @@ def possibleCombination(attrs):
 
 def isSupersetOfSetin(setOfCandidateKeys , attrSet):
 
+    if(len(setOfCandidateKeys) == 0):
+        return False
     for cd in setOfCandidateKeys:
         if cd.issubset(attrSet):
             return True;
@@ -111,13 +132,13 @@ def isSupersetOfSetin(setOfCandidateKeys , attrSet):
 
 def FdEqualityChecker(fd1 ,fd2):
 
-    if(fd1[LEFT] == fd2[LEFT] and  fd2[RIGHT] == fd2[RIGHT]):
+    if(fd1[LEFT] == fd2[LEFT] and  fd1[RIGHT] == fd2[RIGHT]):
         return True
     return False
 
 def DataPaser(data):
     jsonData = json.loads(data)
-    attr = jsonData[ATTRIBUTE]
+    attr = set(jsonData[ATTRIBUTE])
     fds = jsonData[FD]
     left = list()
     right = list()
