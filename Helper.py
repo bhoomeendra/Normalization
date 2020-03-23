@@ -81,7 +81,27 @@ def MinimalCover(table):
     table.displayFDs()
     print("STEP 4" , newFds)
 
-    
+    #STEP 5
+    # Combine FD's with Same LHS
+    newFds = [[],[]]
+    index = 0
+    while index < table.getNoOfFds():
+        fd = table.getFdById(index)
+        newFds[LEFT].append(fd[LEFT])
+        newFds[RIGHT].append(fd[RIGHT])
+        ind = index+1
+        while ind<table.getNoOfFds():
+            fdLoop = table.getFdById(ind)
+            if(fd[LEFT] == fdLoop[LEFT]):
+                newFds[RIGHT][index] = newFds[RIGHT][index].union(fdLoop[RIGHT])
+                table.deleteFdById(ind)
+            else:
+                ind+=1
+        index+=1
+    table.setFds(newFds)
+    table.displayFDs()
+    print("STEP 5",newFds)
+
 
 def CandidateKey(table):
 
