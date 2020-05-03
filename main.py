@@ -18,7 +18,7 @@ def DecomposeTable():
     table = DataPaser(request.data.decode("utf-8"))
     #MinimalCover(table)
     #print("Candidate Keys : ",CandidateKey(table))
-    print(TwoNFDecompostion(table))
+    Dtablesin2NF = TwoNFDecompostion(table)
     return jsonpickle.encode(table) #Make a Json Parser Function that will loop over all the table and paser them as json
 
 if(__name__ == "__main__"):

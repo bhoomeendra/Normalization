@@ -1,30 +1,58 @@
-from Helper import MinimalCover, CandidateKey
+from Helper import MinimalCover, CandidateKey, Closer, PartialDependency
+from Table import Table
 from constants import LEFT, RIGHT
 
 
 def TwoNFDecompostion(table):#SET NORMAL FORM
     #Find Minimal Cover
+    if(len(table.getAttr()) == 0):
+        return []
     MinimalCover(table)
+    print("Decomposing the Following Table")
+    table.show()
     cdKeys = CandidateKey(table)
-    partialDepedency = [[],[]]
 
-    #Finding Partial Depedency
+    newPd = PartialDependency(table,cdKeys)
+
+    #Each PD will have a table(Table and relation are synonyms)
+    tables = []
+    if(len(newPd[LEFT]) == 0):#No Partial Dependency found
+        table.setNormalForm("2NF")
+        tables.append(table)
+        return tables
+    # Recursively check for Partial dependency
+    for tableIndex in range(len(newPd[LEFT])):
+        attr = newPd[LEFT][tableIndex].union(newPd[RIGHT][tableIndex])
+        dtable = Closer(table,attr,True)
+        for fdi in range(len(dtable[RIGHT][LEFT])):
+            table.deleteFdFor2NF([dtable[RIGHT][LEFT][fdi],dtable[RIGHT][RIGHT][fdi]])
+        dtablesPd = TwoNFDecompostion(Table(dtable[LEFT],dtable[RIGHT],"1NF"))
+        tables.extend(dtablesPd)
+        dtablesNotPd = TwoNFDecompostion(Table(table.getAttr(),table.getFdsSet(),"1NF"))
+        tables.extend(dtablesNotPd)
+
+    cdKeyUnion = set()
     for cdKey in cdKeys:
-        index = 0
-        while index < table.getNoOfFds():
-            fdLeft = table.getFdById(index)[LEFT]
-            fdRight = table.getFdById(index)[RIGHT]
+        cdKeyUnion = cdKeyUnion.union(cdKey)
+    tables.append(Table(cdKeyUnion,[[],[]],"2NF"))
+    #Remove Redundent Tables
+    finaltable = list()
+    for Dtable in tables:
+        flag = False
+        for FDtable in finaltable:
+            if FDtable.isEqual(Dtable):
+                flag = True
+                break
+        if(not flag):
+            finaltable.append(Dtable)
 
-            if fdLeft != cdKey and fdLeft.issubset(cdKey):
-                flag  = True
-                for cdK in cdKey:
-                    if fdRight.issubset(cdK):
-                        flag = False
-                        break
-                if flag :
-                    partialDepedency[LEFT].append(fdLeft)
-                    partialDepedency[RIGHT].append(fdRight)
-            index+=1
-    #Merge PDs with same lhs
-    newPd = [[],[]]
-    for index in range(len(partialDepedency[LEFT])) :
+
+    for Dtable in finaltable:
+        Dtable.show()
+#   Merge Empty relations
+    return finaltable
+
+
+
+
+

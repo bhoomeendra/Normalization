@@ -4,15 +4,28 @@ from Table import Table
 from constants import RIGHT, LEFT, FD, ATTRIBUTE
 from itertools import combinations
 
-def Closer(table , attrSet):
+def Closer(table , attrSet,fdrequired = False):
     closer = set().union(attrSet)
     i=0
+    fdUsed = [[],[]]
     while i<len(closer):
             for index in range(table.getNoOfFds()):
                 fd = table.getFdById(index)
                 if fd[LEFT].issubset(closer):
-                   closer = closer.union(fd[RIGHT])
+                    closer = closer.union(fd[RIGHT])
+                    if(fdrequired):
+            #check for duplicacy
+                        found = False
+                        for j in range(len(fdUsed[LEFT])):
+                            if(fdUsed[LEFT][j] == fd[LEFT] and fdUsed[RIGHT][j] == fd[RIGHT]):
+                                found = True
+                                break
+                        if(not found):
+                            fdUsed[LEFT].append(fd[LEFT])
+                            fdUsed[RIGHT].append(fd[RIGHT])
             i+=1
+    if(fdrequired):
+        return [closer,fdUsed]
     return closer
 
 def MinimalCover(table):
@@ -28,8 +41,8 @@ def MinimalCover(table):
     #STEP 2
     #Removing Useless Fds
     table.setFds(newFds)
-    table.displayFDs()
-    print("STEP 1" ,newFds)
+  #  table.displayFDs()
+  #  print("STEP 1" ,newFds)
     index = 0
     while index < table.getNoOfFds():
         fd = table.getFdById(index)
@@ -46,8 +59,8 @@ def MinimalCover(table):
             continue
         index+=1
     newFds = table.getFdsSet()
-    table.displayFDs()
-    print("STEP 2: ", newFds)
+   # table.displayFDs()
+   # print("STEP 2: ", newFds)
     #STEP 3
     #Left Side reduction
     index = 0
@@ -62,8 +75,8 @@ def MinimalCover(table):
                 table.setFds(newFds)
                 print("Index",index ,"\nPrevious Left Fd:\t",fd[LEFT],"\n New FD Left:\t ",newFdLeft)
         index+=1
-    table.displayFDs()
-    print("STEP 3" , newFds)
+   # table.displayFDs()
+  #  print("STEP 3" , newFds)
     index = 0
     #STEP 4
     #Remove Redundent FDs
@@ -78,8 +91,8 @@ def MinimalCover(table):
             index_2 += 1
         index+=1
     #We can Recombine the FD's so optimize the algo
-    table.displayFDs()
-    print("STEP 4" , newFds)
+    #table.displayFDs()
+    #print("STEP 4" , newFds)
 
     #STEP 5
     # Combine FD's with Same LHS
@@ -99,8 +112,8 @@ def MinimalCover(table):
                 ind+=1
         index+=1
     table.setFds(newFds)
-    table.displayFDs()
-    print("STEP 5",newFds)
+   # table.displayFDs()
+   # print("STEP 5",newFds)
 
 
 def CandidateKey(table):
@@ -118,8 +131,8 @@ def CandidateKey(table):
 
     closerofEssential = Closer(table,essential)
 
-    if closerofEssential == table.getAttr():
-        return essential
+    if isEqual(closerofEssential,table.getAttr()):
+        return [essential]
     else:
         pcOfMayBeEssential = possibleCombination(mayBeEssential)
         setOfCandidateKeys = list()
@@ -169,3 +182,43 @@ def DataPaser(data):
         right.append(set(att))
     print(left,right)
     return Table(attr,[left,right],"1NF")
+def PartialDependency(table,cdKeys):
+    partialDepedency = [[], []]
+    # Finding Partial Depedency
+    for cdKey in cdKeys:
+        index = 0
+        while index < table.getNoOfFds():
+            fdLeft = table.getFdById(index)[LEFT]
+            fdRight = table.getFdById(index)[RIGHT]
+
+            if fdLeft != cdKey and fdLeft.issubset(cdKey):
+                flag = True
+                # for cdK in cdKey:
+                #    if fdRight.issubset(cdK):
+                #         flag = False
+                #         break
+                if flag:
+                    partialDepedency[LEFT].append(fdLeft)
+                    partialDepedency[RIGHT].append(fdRight)
+            index += 1
+    # Merge PDs with same lhs
+    newPd = [[], []]
+    for index in range(len(partialDepedency[LEFT])):
+        pdRight = partialDepedency[RIGHT][index]
+        for i in range(index + 1, len(partialDepedency[LEFT])):
+            if (partialDepedency[LEFT][index] == partialDepedency[LEFT][i]):
+                pdRight.union(partialDepedency[RIGHT][i])
+        if (partialDepedency[LEFT][index] not in newPd[LEFT]):
+            newPd[LEFT].append(partialDepedency[LEFT][index])
+            newPd[RIGHT].append(pdRight)
+    return newPd
+
+def isEqual(set1,set2):
+    for i in set1:
+        if( i not in set2):
+            return False;
+    for i in set2:
+        if( i not in set1):
+            return False
+    return True
+
