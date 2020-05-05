@@ -222,3 +222,38 @@ def isEqual(set1,set2):
             return False
     return True
 
+def isSuperKey(attr,cdKeys):
+    for cdKey in cdKeys:
+        if cdKey.issubset(attr):
+            return True
+    return False
+
+def isPrimeAttribute(attr , cdKeys):
+    for cdKey in cdKeys:
+        if attr.issubset(cdKey):
+            return True
+    return False
+
+def TansistiveDependency(table):
+    cdKeys = CandidateKey(table)
+    tansitiveDependency = [[],[]]
+    for index in range(table.getNoOfFds()):
+        fd = table.getFdById(index)
+        alpha = fd[LEFT]
+        beta = fd[RIGHT]
+        if not (isSuperKey(alpha,cdKeys) or isPrimeAttribute(beta,cdKeys)):
+            tansitiveDependency[LEFT].append(alpha)
+            tansitiveDependency[RIGHT].append(beta)
+    #Merge TD with same lhs
+    newTd = [[], []]
+    for index in range(len(tansitiveDependency[LEFT])):
+        pdRight = tansitiveDependency[RIGHT][index]
+        for i in range(index + 1, len(tansitiveDependency[LEFT])):
+            if (tansitiveDependency[LEFT][index] == tansitiveDependency[LEFT][i]):
+                pdRight.union(tansitiveDependency[RIGHT][i])
+        if (tansitiveDependency[LEFT][index] not in newTd[LEFT]):
+            newTd[LEFT].append(tansitiveDependency[LEFT][index])
+            newTd[RIGHT].append(pdRight)
+    return newTd
+
+

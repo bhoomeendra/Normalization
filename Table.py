@@ -53,7 +53,7 @@ class Table:
         print("Functional Dependency: ")
         for i in range(self.getNoOfFds()):
             print(self.fds[LEFT][i],"\t-------------->\t",self.fds[RIGHT][i])
-    def deleteFdFor2NF(self,dfd):
+    def deleteFdForNormalization(self,dfd):
         for index in range(len(self.fds[LEFT])):
             if(dfd[LEFT] == self.fds[LEFT][index]):
                 if(dfd[RIGHT] == self.fds[RIGHT][index]):
