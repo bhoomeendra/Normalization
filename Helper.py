@@ -94,8 +94,10 @@ def MinimalCover(table):
     #table.displayFDs()
     #print("STEP 4" , newFds)
 
+    '''
     #STEP 5
     # Combine FD's with Same LHS
+   
     newFds = [[],[]]
     index = 0
     while index < table.getNoOfFds():
@@ -112,6 +114,7 @@ def MinimalCover(table):
                 ind+=1
         index+=1
     table.setFds(newFds)
+    '''
    # table.displayFDs()
    # print("STEP 5",newFds)
 
@@ -181,7 +184,7 @@ def DataPaser(data):
     for att in fds[RIGHT]:
         right.append(set(att))
     print(left,right)
-    return Table(attr,[left,right],"1NF")
+    return Table(attr,[left,right],"1NF",-1,1)
 def PartialDependency(table,cdKeys):
     partialDepedency = [[], []]
     # Finding Partial Depedency
@@ -193,10 +196,10 @@ def PartialDependency(table,cdKeys):
 
             if fdLeft != cdKey and fdLeft.issubset(cdKey):
                 flag = True
-                # for cdK in cdKey:
-                #    if fdRight.issubset(cdK):
-                #         flag = False
-                #         break
+                for cdK in cdKeys:
+                    if fdRight.issubset(cdK):
+                         flag = False
+                         break
                 if flag:
                     partialDepedency[LEFT].append(fdLeft)
                     partialDepedency[RIGHT].append(fdRight)
@@ -256,4 +259,26 @@ def TansistiveDependency(table):
             newTd[RIGHT].append(pdRight)
     return newTd
 
+def DependencyForBcnf(table):
+    cdKeys  = CandidateKey(table)
+    pD = [[],[]]#Problem Dependecy
 
+    for index in range(table.getNoOfFds()):
+        fd = table.getFdById(index)
+        alpha = fd[LEFT]
+        if not (isSuperKey(alpha, cdKeys)):
+            pD[LEFT].append(alpha)
+            pD[RIGHT].append(fd[RIGHT])
+    #Merge the Pds with same lhs
+
+    mpD = [[], []]
+    for index in range(len(pD[LEFT])):
+        pdRight = pD[RIGHT][index]
+        for i in range(index + 1, len(pD[LEFT])):
+            if (pD[LEFT][index] == pD[LEFT][i]):
+                pdRight.union(pD[RIGHT][i])
+        if (pD[LEFT][index] not in mpD[LEFT]):
+            mpD[LEFT].append(pD[LEFT][index])
+            mpD[RIGHT].append(pdRight)
+
+    return mpD

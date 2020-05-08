@@ -26,15 +26,15 @@ def TwoNFDecompostion(table):#SET NORMAL FORM
         dtable = Closer(table,attr,True)#will also return fds Used in the right part
         for fdi in range(len(dtable[RIGHT][LEFT])):
             table.deleteFdForNormalization([dtable[RIGHT][LEFT][fdi],dtable[RIGHT][RIGHT][fdi]])
-        dtablesPd = TwoNFDecompostion(Table(dtable[LEFT],dtable[RIGHT],"1NF"))
+        dtablesPd = TwoNFDecompostion(Table(dtable[LEFT],dtable[RIGHT],"1NF",1,2))
         tables.extend(dtablesPd)
-        dtablesNotPd = TwoNFDecompostion(Table(table.getAttr(),table.getFdsSet(),"1NF"))
+        dtablesNotPd = TwoNFDecompostion(Table(table.getAttr(),table.getFdsSet(),"1NF",1,2))
         tables.extend(dtablesNotPd)
 
     cdKeyUnion = set()
     for cdKey in cdKeys:
         cdKeyUnion = cdKeyUnion.union(cdKey)
-    tables.append(Table(cdKeyUnion,[[],[]],"2NF"))
+    tables.append(Table(cdKeyUnion,[[],[]],"2NF",1,2))
     #Remove Redundent Tables
     finaltable = list()
     for Dtable in tables:
@@ -87,6 +87,10 @@ def decompose2NF(table):
     alltables.extend(emptyTables)
     for getTable in nonEmptyTables:
         alltables.append(getTable[LEFT])
+    #Set Id and Pids
+    for table in alltables:
+        table.setPid(1)
+        table.setId(id(table))
     return alltables
 
 

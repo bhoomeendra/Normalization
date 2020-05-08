@@ -27,8 +27,10 @@ def ThreeNFConversion(table):
         tfd = [transitiveDependency[LEFT][index],transitiveDependency[RIGHT][index]]
         attr = tfd[LEFT].union(tfd[RIGHT])
         table.deleteFdForNormalization(tfd)
-        threeNFtables.append(Table(attr,tfd,"3NF"))
+        threeNFtables.append(Table(attr,tfd,"3NF",table.getId(),2))
 
     table.setNormalForm("3NF")
-    threeNFtables.append(table)
+    threeNFtables.append(Table(table.getAttr(),table.getFdsSet(),table.getNormalForm(),table.getId(),283))
+    id = id(threeNFtables[-1])
+    threeNFtables[-1].setId(id)
     return threeNFtables

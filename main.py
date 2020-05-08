@@ -1,5 +1,6 @@
 import json
 
+from NormalForm.BCNF import BCNFDecompostion
 from NormalForm.ThreeNF import ThreeNFDecompostion
 from NormalForm.TwoNF import  decompose2NF
 
@@ -17,9 +18,9 @@ cors = CORS(app)
 @app.route('/Decompose',methods=['POST'])
 def DecomposeTable():
     table = DataPaser(request.data.decode("utf-8"))
-    #MinimalCover(table)
-    #print("Candidate Keys : ",CandidateKey(table))
-    Dtablesin2NF = ThreeNFDecompostion(table)
+    Dtablesin3NF = BCNFDecompostion(table)
+    for table in Dtablesin3NF:
+        table.show()
     return jsonpickle.encode(table) #Make a Json Parser Function that will loop over all the table and paser them as json
 
 if(__name__ == "__main__"):
