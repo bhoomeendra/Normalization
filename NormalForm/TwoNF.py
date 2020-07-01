@@ -90,7 +90,7 @@ def decompose2NF(table):
     #Set Id and Pids
     for table in alltables:
         table.setPid(1)
-        table.setId(id(table))
+        table.setId(0)
     return alltables
 
 

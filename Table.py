@@ -1,6 +1,8 @@
 import json
 
 import Helper
+from IdGenerator import IdGenrerator
+
 from constants import LEFT, RIGHT
 
 
@@ -10,13 +12,19 @@ class Table:
         self.fds = fds
         self.normalForm = normalForm
         self.pId = pId
-        self.id = id
+        if(id == 0 ):
+            self.id =  IdGenrerator.getId()
+        else:
+            self.id = id
     def setPid(self,pId):
         self.pId = pId
     def getPid(self):
         return self.pId
     def setId(self,id):
-        self.id = id
+        if (id == 0):
+            self.id = IdGenrerator.getId()
+        else:
+            self.id = id
     def getId(self):
         return self.id
     def show(self):

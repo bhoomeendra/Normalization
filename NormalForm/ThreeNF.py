@@ -9,8 +9,8 @@ def ThreeNFDecompostion(table):
     twoNFTables = decompose2NF(table)
     threeNFtable = list()
     for twoNFTable in twoNFTables:
-        threeNFtable+=ThreeNFConversion(twoNFTable)
-    return threeNFtable
+        threeNFtable+=ThreeNFConversion(Table(twoNFTable.getAttr(),twoNFTable.getFdsSet(),twoNFTable.getNormalForm(),twoNFTable.getPid(),twoNFTable.getId()))
+    return [twoNFTables,threeNFtable]
 
 def ThreeNFConversion(table):
     MinimalCover(table)
@@ -27,10 +27,8 @@ def ThreeNFConversion(table):
         tfd = [transitiveDependency[LEFT][index],transitiveDependency[RIGHT][index]]
         attr = tfd[LEFT].union(tfd[RIGHT])
         table.deleteFdForNormalization(tfd)
-        threeNFtables.append(Table(attr,tfd,"3NF",table.getId(),2))
+        threeNFtables.append(Table(attr,[[tfd[LEFT]],[tfd[RIGHT]]],"3NF",table.getId(),0))
 
     table.setNormalForm("3NF")
-    threeNFtables.append(Table(table.getAttr(),table.getFdsSet(),table.getNormalForm(),table.getId(),283))
-    id = id(threeNFtables[-1])
-    threeNFtables[-1].setId(id)
+    threeNFtables.append(Table(table.getAttr(),table.getFdsSet(),table.getNormalForm(),table.getId(),0))
     return threeNFtables

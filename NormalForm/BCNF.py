@@ -6,12 +6,17 @@ from constants import LEFT, RIGHT
 
 def BCNFDecompostion(table):#SET NORMAL FORM
 
-    threeNFTables = ThreeNFDecompostion(table)
+    twoAndthreeNFTables = ThreeNFDecompostion(table)
+    threeNFTables = twoAndthreeNFTables[1]
+    twoNFTables =  twoAndthreeNFTables[0]
     BCNFTables = list()
     for threeNFTable in threeNFTables:
-        BCNFTables += BCNFConversion(threeNFTable)
+        BCNFTables += BCNFConversion(Table(threeNFTable.getAttr(),threeNFTable.getFdsSet(),threeNFTable.getNormalForm(),threeNFTable.getPid(),threeNFTable.getId()))
 
-    return BCNFTables
+    AllTables = list()
+    AllTables = threeNFTables+twoNFTables+BCNFTables
+
+    return AllTables
 
 def BCNFConversion(table):
     MinimalCover(table)
@@ -26,7 +31,7 @@ def BCNFConversion(table):
         pdr = pD[RIGHT][i]
         attr = pdl.union(pdr)
         table.deleteForBcnf([pdl,pdr])
-        nTable = Table(attr,[[pdl],[pdr]],"3NF",table.getId(),-1)
+        nTable = Table(attr,[[pdl],[pdr]],"3NF",table.getId(),0)
         bcnfTable.extend(BCNFConversion(table))
         bcnfTable.extend(BCNFConversion(nTable))
 

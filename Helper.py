@@ -282,3 +282,35 @@ def DependencyForBcnf(table):
             mpD[RIGHT].append(pdRight)
 
     return mpD
+
+def fdSetTofdList(fdset):
+    fdRight = []
+    fdLeft = []
+    for i in range(len(fdset[LEFT])):
+        fdLeft.append(convertSetToList(fdset[LEFT][i]))
+        fdRight.append(convertSetToList(fdset[RIGHT][i]))
+
+    return [fdLeft,fdRight]
+
+
+def convertSetToList(argSet):
+    lst = list()
+    for i in argSet:
+        lst.append(i)
+    return lst
+
+def parseTable(table):
+
+    attr = json.dumps(convertSetToList(table.getAttr()))
+    fds = json.dumps(fdSetTofdList(table.getFdsSet()))
+    normalForm = json.dumps(table.getNormalForm())
+    pid = json.dumps(table.getPid())
+    id = json.dumps(table.getId())
+    return "{ \"attr\":"+ attr +"," +"\"fds\":"+fds+","+"\"normalForm\":"+normalForm+"," +"\"pId\":"+pid+","+"\"id\":"+id+" }"
+
+def jsonParser(tables):
+
+    jsonList  = []
+    for table in tables:
+        jsonList.append(parseTable(table))
+    return jsonList
